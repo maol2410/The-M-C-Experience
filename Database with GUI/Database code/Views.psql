@@ -1,0 +1,17 @@
+CREATE VIEW actorswithnames AS
+SELECT actorid, firstname AS actor_firstname, lastname AS actor_lastname
+FROM actor
+NATURAL JOIN actorname
+NATURAL JOIN name;
+
+CREATE VIEW directorswithnames AS
+SELECT directorid, firstname AS director_firstname, lastname AS director_lastname
+FROM director
+NATURAL JOIN directorname
+NATURAL JOIN name;
+
+CREATE VIEW movies AS
+SELECT mediaid
+FROM ((SELECT mediaid FROM media)
+EXCEPT
+(SELECT mediaid FROM episode)) AS temp;

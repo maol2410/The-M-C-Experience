@@ -1,0 +1,271 @@
+CREATE TABLE Media (
+mediaID INT PRIMARY KEY,
+title VARCHAR(255) NOT NULL,
+year INT NOT NULL,
+country VARCHAR(255),
+length INT NOT NULL,
+rating DECIMAL(3,1),
+pg_age INT NOT NULL,
+release_Date DATE NOT NULL DEFAULT NOW(),
+UNIQUE(title,year)
+);
+
+CREATE TABLE Series (
+seriesID INT PRIMARY KEY,
+seriesTitle VARCHAR(255) NOT NULL,
+year INT NOT NULL,
+rating DECIMAL(3,1),
+UNIQUE(seriesTitle,year)
+);
+
+CREATE TABLE Actor (
+actorID INT PRIMARY KEY,
+dateOfBirth DATE,
+country VARCHAR(255)
+);
+
+CREATE TABLE Director (
+directorID INT PRIMARY KEY,
+dateOfBirth DATE,
+country VARCHAR(255)
+);
+
+CREATE TABLE Genre (
+genreID INT PRIMARY KEY,
+genreType VARCHAR(255)
+);
+
+CREATE TABLE Login(
+loginID INT PRIMARY KEY,
+email VARCHAR(255) NOT NULL UNIQUE,
+password VARCHAR(32) NOT NULL CHECK(LENGTH(password) >= 8 AND LENGTH(password) <= 32)
+);
+
+CREATE TABLE Address(
+addressID INT PRIMARY KEY,
+country VARCHAR(255),
+city VARCHAR(255),
+street VARCHAR(255)
+);
+
+CREATE TABLE Name (
+nameID INT PRIMARY KEY,
+firstName VARCHAR(255) NOT NULL,
+lastName VARCHAR(255) NOT NULL
+);
+
+CREATE TABLE Position (
+positionID INT PRIMARY KEY,
+positionType VARCHAR(255) NOT NULL
+);
+
+CREATE TABLE Users (
+userID INT PRIMARY KEY,
+dateOfBirth DATE,
+phoneNumber VARCHAR(15)
+);
+
+CREATE TABLE Administrator(
+adminID INT PRIMARY KEY,
+positionID INT NOT NULL,
+FOREIGN KEY(positionID) REFERENCES position(positionID)
+);
+
+CREATE TABLE Customer(
+customerID INT PRIMARY KEY,
+discountPercentage INT NOT NULL DEFAULT 0 CHECK(discountPercentage >= 0 AND discountPercentage <= 25)
+);
+
+CREATE TABLE ProfileType(
+profileTypeID INT PRIMARY KEY,
+profileType VARCHAR(255) NOT NULL,
+age INT NOT NULL
+);
+
+CREATE TABLE Profile(
+profileID INT CHECK(profileID >= 1 AND profileID <= 3),
+customerID INT,
+userName VARCHAR(255) NOT NULL,
+previousWatchMedia INT,
+profileType INT NOT NULL,
+PRIMARY KEY (customerID, profileID),
+FOREIGN KEY(previousWatchMedia) REFERENCES Media(mediaID),
+FOREIGN KEY(customerID) REFERENCES Customer(customerID),
+FOREIGN KEY(profileType) REFERENCES ProfileType(profileTypeID)
+);
+
+CREATE TABLE SubscriptionPlan(
+subscriptionID INT PRIMARY KEY,
+startDate DATE NOT NULL,
+expirationDate DATE,
+paymentAmount DECIMAL(6,2)
+);
+
+CREATE TABLE SubscriptionType(
+subscriptionTypeID INT PRIMARY KEY,
+subscriptionType VARCHAR(255) NOT NULL,
+monthlyFee DECIMAL(6,2) NOT NULL
+);
+
+CREATE TYPE CARDTYPE AS ENUM ('Vysa', 'Måster Kard', 'Svenska Express');
+
+CREATE TABLE CreditCard(
+creditCardID INT PRIMARY KEY,
+cardType CARDTYPE NOT NULL,
+ccn VARCHAR(20) NOT NULL,
+expirationDate DATE NOT NULL,
+cardOwner VARCHAR(255) NOT NULL
+);
+
+CREATE TABLE SeriesWatchList(
+customerID INT,
+seriesID INT,
+profileID INT,
+rating INT CHECK(rating >= 1 AND rating <= 10),
+previousWatchEpisode INT,
+PRIMARY KEY (customerID, seriesID, profileID),
+FOREIGN KEY(seriesID) REFERENCES Series(seriesID),
+FOREIGN KEY(profileID, customerID) REFERENCES Profile(profileID, customerID),
+FOREIGN KEY(previousWatchEpisode) REFERENCES Media(mediaID)
+);
+
+CREATE TABLE WatchList(
+customerID INT,
+mediaID INT,
+profileID INT,
+rating INT CHECK(rating >= 1 AND rating <= 10), 
+progressTime INT NOT NULL CHECK(progressTime >= 0 AND progressTime <= 100),
+PRIMARY KEY (customerID, mediaID, profileID),
+FOREIGN KEY(mediaID) REFERENCES Media(mediaID),
+FOREIGN KEY(profileID, customerID) REFERENCES Profile(profileID, customerID)
+);
+
+CREATE TABLE Remake(
+remake INT,
+original INT,
+PRIMARY KEY (remake, original),
+FOREIGN KEY(remake) REFERENCES Media(mediaID),
+FOREIGN KEY(original) REFERENCES Media(mediaID)
+);
+
+CREATE TABLE Sequel(
+prequel INT,
+sequel INT,
+PRIMARY KEY (prequel, sequel),
+FOREIGN KEY(prequel) REFERENCES Media(mediaID),
+FOREIGN KEY(sequel) REFERENCES Media(mediaID)
+);
+
+CREATE TABLE ActorsInMedia(
+actorID INT,
+mediaID INT,
+PRIMARY KEY (actorID, mediaID),
+FOREIGN KEY(actorID) REFERENCES Actor(actorID),
+FOREIGN KEY(mediaID) REFERENCES Media(mediaID)
+);
+
+CREATE TABLE DirectorsInMedia(
+directorID INT,
+mediaID INT,
+PRIMARY KEY (directorID, mediaID),
+FOREIGN KEY(directorID) REFERENCES Director(directorID),
+FOREIGN KEY(mediaID) REFERENCES Media(mediaID)
+);
+
+CREATE TABLE GenreInMedia(
+genreID INT,
+mediaID INT,
+PRIMARY KEY (genreID, mediaID),
+FOREIGN KEY(genreID) REFERENCES Genre(genreID),
+FOREIGN KEY(mediaID) REFERENCES Media(mediaID)
+);
+
+CREATE TABLE AdministratorUser(
+adminID INT,
+userID INT,
+PRIMARY KEY (adminID, userID),
+FOREIGN KEY(adminID) REFERENCES Administrator(adminID),
+FOREIGN KEY(userID) REFERENCES Users(userID)
+);
+
+CREATE TABLE CustomerUser(
+customerID INT,
+userID INT,
+PRIMARY KEY (customerID, userID),
+FOREIGN KEY(customerID) REFERENCES Customer(customerID),
+FOREIGN KEY(userID) REFERENCES Users(userID)
+);
+
+CREATE TABLE LoginInUser(
+loginID INT,
+userID INT,
+PRIMARY KEY (loginID, userID),
+FOREIGN KEY(loginID) REFERENCES Login(loginID),
+FOREIGN KEY(userID) REFERENCES Users(userID)
+);
+
+CREATE TABLE AddressInUser(
+addressID INT,
+userID INT,
+PRIMARY KEY (addressID, userID),
+FOREIGN KEY(addressID) REFERENCES Address(addressID),
+FOREIGN KEY(userID) REFERENCES Users(userID)
+);
+
+CREATE TABLE UserName(
+userID INT,
+nameID INT,
+PRIMARY KEY (userID, nameID),
+FOREIGN KEY(userID) REFERENCES Users(userID),
+FOREIGN KEY(nameID) REFERENCES Name(nameID)
+);
+
+CREATE TABLE ActorName(
+actorID INT,
+nameID INT,
+PRIMARY KEY (actorID, nameID),
+FOREIGN KEY(actorID) REFERENCES Actor(actorID),
+FOREIGN KEY(nameID) REFERENCES Name(nameID)
+);
+
+CREATE TABLE DirectorName(
+directorID INT,
+nameID INT,
+PRIMARY KEY (directorID, nameID),
+FOREIGN KEY(directorID) REFERENCES Director(directorID),
+FOREIGN KEY(nameID) REFERENCES Name(nameID)
+);
+
+CREATE TABLE SubscriptionInCustomer(
+subscriptionID INT,
+customerID INT,
+PRIMARY KEY (subscriptionID, customerID),
+FOREIGN KEY(subscriptionID) REFERENCES SubscriptionPlan(subscriptionID),
+FOREIGN KEY(customerID) REFERENCES Customer(customerID)
+);
+
+CREATE TABLE SubscriptionTypeInPlan(
+subscriptionTypeID INT,
+subscriptionID INT,
+PRIMARY KEY (subscriptionTypeID, subscriptionID),
+FOREIGN KEY(subscriptionTypeID) REFERENCES SubscriptionType(subscriptionTypeID),
+FOREIGN KEY(subscriptionID) REFERENCES SubscriptionPlan(subscriptionID)
+);
+
+CREATE TABLE CreditCardInSubscription(
+creditCardID INT,
+subscriptionID INT,
+PRIMARY KEY (creditCardID, subscriptionID),
+FOREIGN KEY(creditCardID) REFERENCES CreditCard(creditCardID),
+FOREIGN KEY(subscriptionID) REFERENCES SubscriptionPlan(subscriptionID)
+);
+
+CREATE TABLE Episode(
+mediaID INT,
+seriesID INT,
+seasonNumber INT NOT NULL,
+episodeNumber INT NOT NULL,
+PRIMARY KEY (mediaID, seriesID),
+FOREIGN KEY(mediaID) REFERENCES Media(mediaID),
+FOREIGN KEY(seriesID) REFERENCES Series(seriesID)
+);

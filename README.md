@@ -1,2 +1,2 @@
 # Streaming Application
-A streaming application with database. Created in C#.
+The M&C Experience is a streaming service created in C# with an PostgreSQL database and GUI

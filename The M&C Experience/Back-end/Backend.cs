@@ -12,7 +12,7 @@ namespace mss
     {
         public void Run()
         {
-            string cs = "Host=psql-dd1368-ht20.sys.kth.se;Username=jhedenby;Password=OnXsC47lUZbR;Database=jhe_8";
+            string cs = "Host="; // Add host url
             NpgsqlConnection con = new NpgsqlConnection(cs);
             try
             {
